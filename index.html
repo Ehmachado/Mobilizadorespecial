@@ -55,11 +55,10 @@ tfoot td{background:#16213a;font-weight:700}
 </head>
 <body>
 <h1>Simulador do Mobilizador Especial</h1>
-<p>Informe Orçado, Realizado e/ou % de Atingimento. Se algum campo for deixado em branco, o sistema calcula automaticamente. O total máximo equivale a 1500 pontos, e os Pontos Extras são mostrados conforme o atingimento geral.</p>
+<p>SUPER BARREIRAS</p>
 
 <div class="card">
   <div class="grid cols-5">
-    <!-- gerar 5 mobilizadores -->
     <script>
       for(let i=1;i<=5;i++){
         document.write(`
@@ -109,60 +108,82 @@ function bonus(p){if(p>=1500)return 200;if(p>=1400)return 180;if(p>=1300)return 
 
 function calcular(){
   const tbody=document.getElementById("tbody");tbody.innerHTML="";
-  let somaPeso=0,somaAtingMax=0,somaAtingReal=0;
+
+  let somaPeso=0,somaAtingMax=0,somaAtingReal=0, considerados=0;
 
   for(let i=1;i<=5;i++){
     const nome=(document.getElementById("n"+i).value||"").trim()||`Mobilizador ${i}`;
-    const peso=BR(document.getElementById("w"+i).value)||0;
-    let orcado=BR(document.getElementById("o"+i).value)||0;
-    let realizado=BR(document.getElementById("r"+i).value)||0;
-    let ating=BR(document.getElementById("a"+i).value);
+    let   peso=BR(document.getElementById("w"+i).value);
+    let orcado=BR(document.getElementById("o"+i).value);
+    let realizado=BR(document.getElementById("r"+i).value);
+    let  ating=BR(document.getElementById("a"+i).value);
     const tipo=document.getElementById("sel"+i).value;
 
-    // cálculo automático
-    if(!Number.isFinite(ating) && orcado>0 && realizado>0) ating = (realizado/orcado)*100;
-    else if(!realizado && orcado>0 && Number.isFinite(ating)) realizado = (ating/100)*orcado;
-    else if(!orcado && realizado>0 && Number.isFinite(ating)) orcado = realizado/(ating/100);
+    // detectar se a linha tem dados relevantes
+    const hasData = (Number.isFinite(peso) && peso>0) || (Number.isFinite(orcado) && orcado>0) ||
+                    (Number.isFinite(realizado) && realizado>0) || Number.isFinite(ating);
 
-    // definir régua máxima
+    if(!hasData) continue; // ignora completamente este mobilizador
+
+    // normalizar NaN -> 0
+    peso = Number.isFinite(peso)?peso:0;
+    orcado = Number.isFinite(orcado)?orcado:0;
+    realizado = Number.isFinite(realizado)?realizado:0;
+
+    // cálculo automático entre orçado/realizado/% ating
+    if(!Number.isFinite(ating) && orcado>0 && realizado>0)       ating = (realizado/orcado)*100;
+    else if(!Number.isFinite(realizado) && orcado>0 && Number.isFinite(ating)) realizado = (ating/100)*orcado;
+    else if(!Number.isFinite(orcado) && realizado>0 && Number.isFinite(ating)) orcado = realizado/(ating/100);
+
+    // definir régua máxima da linha
     let atingMax=(tipo==="custom")?115:parseFloat(tipo);
     if(tipo==="custom"){
       const txt=document.getElementById("c"+i).value;
       const linhas=txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-      for(let j=1;j<linhas.length;j+=3){let val=BR(linhas[j]);if(val>atingMax)atingMax=val;}
+      // maior "superior" informado vira o topo da régua
+      for(let j=1;j<linhas.length;j+=3){
+        const val=BR(linhas[j]); if(Number.isFinite(val) && val>atingMax) atingMax=val;
+      }
     }
 
-    somaPeso+=peso;
-    somaAtingMax+=atingMax*peso;
-    somaAtingReal+=ating*peso;
+    // acumular apenas os preenchidos
+    somaPeso     += peso;
+    somaAtingMax += (Number.isFinite(atingMax)?atingMax:0) * peso;
+    somaAtingReal+= (Number.isFinite(ating)?ating:0) * peso;
+    considerados++;
 
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td>${nome}</td>
-      <td>${tipo==="custom"?"Custom":atingMax.toFixed(1)+"%"}</td>
-      <td>${fmt(peso,2)}%</td>
-      <td>${orcado?fmt(orcado,2):"—"}</td>
-      <td>${realizado?fmt(realizado,2):"—"}</td>
-      <td>${fmt(ating,2)}%</td>
-      <td>${fmt(atingMax*peso,2)}</td>
-      <td>${fmt(ating*peso,2)}</td>`;
+      <td>${tipo==="custom"?"Custom":(Number.isFinite(atingMax)?atingMax.toFixed(1)+"%":"—")}</td>
+      <td>${Number.isFinite(peso)?fmt(peso,2)+"%":"—"}</td>
+      <td>${orcado>0?fmt(orcado,2):"—"}</td>
+      <td>${realizado>0?fmt(realizado,2):"—"}</td>
+      <td>${Number.isFinite(ating)?fmt(ating,2)+"%":"—"}</td>
+      <td>${(Number.isFinite(atingMax)&&Number.isFinite(peso))?fmt(atingMax*peso,2):"—"}</td>
+      <td>${(Number.isFinite(ating)   &&Number.isFinite(peso))?fmt(ating*peso,2):"—"}</td>`;
     tbody.appendChild(tr);
   }
 
-  document.getElementById("tPeso").textContent=fmt(somaPeso,2)+"%";
-  document.getElementById("tMax").textContent=fmt(somaAtingMax,2);
-  document.getElementById("tReal").textContent=fmt(somaAtingReal,2);
-  document.getElementById("pesoInfo").textContent=`Soma pesos: ${fmt(somaPeso,2)}%`;
+  // Totais considerando apenas as linhas válidas
+  document.getElementById("tPeso").textContent = somaPeso? fmt(somaPeso,2)+"%" : "—";
+  document.getElementById("tMax").textContent  = somaAtingMax? fmt(somaAtingMax,2) : "—";
+  document.getElementById("tReal").textContent = somaAtingReal? fmt(somaAtingReal,2) : "—";
+  document.getElementById("pesoInfo").textContent = `Soma pesos: ${fmt(somaPeso||0,2)}%`;
 
-  const pts = somaAtingMax>0 ? (somaAtingReal/somaAtingMax)*1500 : 0;
-  const extras=bonus(pts);
-  document.getElementById("resumo").textContent=`Pontos: ${fmt(pts,2)} | Pontos Extras: ${extras}`;
+  // Regra de 3 apenas se houver base válida
+  const pts = (somaAtingMax>0) ? (somaAtingReal/somaAtingMax)*1500 : 0;
+  const extras = bonus(pts);
+
+  // Resultado final
+  const infoCons = considerados>0 ? ` | Considerados: ${considerados}` : "";
+  document.getElementById("resumo").textContent = `Pontos: ${fmt(pts,2)} | Pontos Extras: ${extras}${infoCons}`;
 }
 
 function limpar(){
   for(let i=1;i<=5;i++){
     ['n','w','o','r','a','c'].forEach(id=>document.getElementById(id+i).value="");
-    document.getElementById("sel"+i).value="115";toggleCustom(i);
+    document.getElementById("sel"+i).value="115"; toggleCustom(i);
   }
   document.getElementById("tbody").innerHTML='<tr><td colspan="8" class="muted" style="text-align:center">Preencha e clique em Calcular</td></tr>';
   document.getElementById("tPeso").textContent="";
