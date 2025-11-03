@@ -1,153 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Simulador do Mobilizador Especial — Régua 1500 + Pontos Extras</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador do Mobilizador Especial — Escala 1500</title>
 <style>
-  body{font-family:Segoe UI,Arial,sans-serif;background:#0f172a;color:#e5e7eb;margin:0;padding:24px}
-  h1{font-size:26px;margin:0 0 10px}
-  p{color:#94a3b8;margin:0 0 16px}
-  .card{background:#111827;border-radius:12px;padding:18px;margin-bottom:16px;border:1px solid #1f2937}
-  .grid{display:grid;gap:10px}
-  .grid.cols-5{grid-template-columns:repeat(5,1fr)}
-  label{font-size:12px;color:#cbd5e1}
-  input{width:100%;padding:8px;border-radius:8px;border:1px solid #1f2937;background:#0b1020;color:#e5e7eb}
-  button{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-  .primary{background:#2563eb;color:#fff}
-  .ghost{background:#1e293b;color:#e5e7eb}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-  th,td{padding:8px;border-bottom:1px solid #1f2937;text-align:right}
-  th{text-align:center;color:#cbd5e1;background:#1e293b}
-  td:first-child,th:first-child{text-align:left}
-  tfoot td{font-weight:700;background:#1e293b}
-  .ok{color:#16a34a}.warn{color:#facc15}.bad{color:#ef4444}
+:root {
+  --azul:#003399; --amarelo:#ffcc00; --fundo:#0b152e;
+  --card:#111827; --borda:#1f2937; --texto:#f1f5f9; --muted:#94a3b8;
+}
+*{box-sizing:border-box}
+body{
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:linear-gradient(135deg,var(--azul),var(--fundo) 60%);
+  color:var(--texto); margin:0; padding:30px;
+}
+h1{color:var(--amarelo);margin-bottom:8px;font-size:28px}
+p{color:var(--muted);margin-bottom:16px}
+.card{
+  background:var(--card);border:1px solid var(--borda);border-radius:14px;
+  padding:18px;margin-bottom:18px;box-shadow:0 12px 30px rgba(0,0,0,.35)
+}
+.grid{display:grid;gap:12px}
+.grid.cols-5{grid-template-columns:repeat(5,1fr)}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:3px}
+input,select,textarea{
+  width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--borda);
+  background:#0b1020;color:var(--texto)
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--amarelo);
+  box-shadow:0 0 0 3px rgba(255,204,0,.25)
+}
+textarea{min-height:100px;font-family:monospace}
+button{
+  padding:10px 16px;border:none;border-radius:10px;font-weight:700;
+  cursor:pointer;transition:.2s
+}
+button.primary{background:var(--amarelo);color:#000}
+button.primary:hover{background:#ffe75b}
+button.ghost{background:#1e293b;color:var(--texto)}
+button.ghost:hover{background:#2a3850}
+table{width:100%;border-collapse:collapse;background:#0b1020;border-radius:10px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid var(--borda);text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{background:#16213a;color:var(--amarelo)}
+tfoot td{background:#16213a;font-weight:700}
+.muted{color:var(--muted)}
+.resultado{text-align:center;font-size:18px;font-weight:800;color:var(--amarelo);margin-top:12px}
+.hide{display:none}
+.selreg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tag{background:#0b1020;border:1px solid var(--borda);border-radius:999px;padding:4px 10px;font-size:13px;margin-left:auto}
 </style>
 </head>
 <body>
 <h1>Simulador do Mobilizador Especial</h1>
-<p>Até 5 mobilizadores — Soma dos pesos deve ser 15 (1500 pts). Inclui Pontos Extras conforme performance total.</p>
+<p>Informe Orçado, Realizado e/ou % de Atingimento. Se algum campo for deixado em branco, o sistema calcula automaticamente. O total máximo equivale a 1500 pontos, e os Pontos Extras são mostrados conforme o atingimento geral.</p>
 
 <div class="card">
   <div class="grid cols-5">
-    <div>
-      <label>Mobilizador 1</label><input id="n1" placeholder="Nome"/><label>Peso</label><input id="p1"/><label>Régua máx.</label><input id="r1"/><label>% Ating.</label><input id="a1"/>
-    </div>
-    <div>
-      <label>Mobilizador 2</label><input id="n2"/><label>Peso</label><input id="p2"/><label>Régua máx.</label><input id="r2"/><label>% Ating.</label><input id="a2"/>
-    </div>
-    <div>
-      <label>Mobilizador 3</label><input id="n3"/><label>Peso</label><input id="p3"/><label>Régua máx.</label><input id="r3"/><label>% Ating.</label><input id="a3"/>
-    </div>
-    <div>
-      <label>Mobilizador 4</label><input id="n4"/><label>Peso</label><input id="p4"/><label>Régua máx.</label><input id="r4"/><label>% Ating.</label><input id="a4"/>
-    </div>
-    <div>
-      <label>Mobilizador 5</label><input id="n5"/><label>Peso</label><input id="p5"/><label>Régua máx.</label><input id="r5"/><label>% Ating.</label><input id="a5"/>
-    </div>
+    <!-- gerar 5 mobilizadores -->
+    <script>
+      for(let i=1;i<=5;i++){
+        document.write(`
+        <div id="box${i}">
+          <label>Mobilizador ${i}</label><input id="n${i}" placeholder="Nome">
+          <label>Peso (%)</label><input id="w${i}" placeholder="3">
+          <label>Orçado</label><input id="o${i}" placeholder="1000">
+          <label>Realizado</label><input id="r${i}" placeholder="950">
+          <label>% Atingimento</label><input id="a${i}" placeholder="95">
+          <label>Régua Máx</label>
+          <select id="sel${i}" onchange="toggleCustom(${i})">
+            <option value="115" selected>115%</option>
+            <option value="120">120%</option>
+            <option value="custom">Personalizada</option>
+          </select>
+          <textarea id="c${i}" class="hide" placeholder="-99999,99999&#10;0,99499&#10;0&#10;..."></textarea>
+        </div>`);
+      }
+    </script>
   </div>
-  <br>
-  <button class="primary" onclick="calcular()">Calcular</button>
-  <button class="ghost" onclick="limpar()">Limpar</button>
+  <div class="btns" style="margin-top:15px">
+    <button class="primary" onclick="calcular()">Calcular</button>
+    <button class="ghost" onclick="limpar()">Limpar</button>
+    <span id="pesoInfo" class="tag">Soma pesos: 0%</span>
+  </div>
 </div>
 
 <div class="card">
-  <table id="tabela">
+  <table>
     <thead>
-      <tr><th>Mobilizador</th><th>Peso</th><th>Régua máx.</th><th>% Ating.</th><th>Pontos (régua)</th><th>Pontos ÷ Peso</th><th>×100 (esc.1500)</th></tr>
+      <tr>
+        <th>Mobilizador</th><th>Régua</th><th>Peso (%)</th><th>Orçado</th><th>Realizado</th>
+        <th>% Ating.</th><th>Ating Máx × Peso</th><th>Ating Real × Peso</th>
+      </tr>
     </thead>
-    <tbody id="tbody"><tr><td colspan="7" style="text-align:center;color:#94a3b8">Insira dados e clique em Calcular</td></tr></tbody>
-    <tfoot>
-      <tr><td>Total</td><td id="tPeso"></td><td></td><td></td><td id="tReg"></td><td id="tReal"></td><td id="t1500"></td></tr>
-      <tr><td colspan="7" id="extras" style="text-align:center"></td></tr>
-    </tfoot>
+    <tbody id="tbody"><tr><td colspan="8" class="muted" style="text-align:center">Preencha e clique em Calcular</td></tr></tbody>
+    <tfoot><tr><td><b>Total</b></td><td></td><td id="tPeso"></td><td></td><td></td><td></td><td id="tMax"></td><td id="tReal"></td></tr></tfoot>
   </table>
+  <div class="resultado" id="resumo">Pontos: 0 | Pontos Extras: 0</div>
 </div>
 
 <script>
-// --- Régua compacta ---
-const REGUA=[
-[-99999.99999,0.99499,0],[0.995,1.99499,10],[1.995,2.99499,20],[2.995,3.99499,30],
-[3.995,4.99499,40],[4.995,5.99499,50],[5.995,6.99499,60],[6.995,7.99499,70],
-[7.995,8.99499,80],[8.995,9.99499,90],[9.995,10.99499,100],[10.995,11.99499,110],
-[11.995,12.99499,120],[12.995,13.99499,130],[13.995,15.99499,150],[15.995,16.99499,160],
-[16.995,17.99499,170],[17.995,18.99499,180],[18.995,19.99499,190],[19.995,20.99499,200],
-[20.995,21.99499,210],[21.995,22.99499,220],[22.995,23.99499,230],[23.995,24.99499,240],
-[24.995,25.99499,250],[25.995,26.99499,260],[26.995,27.99499,270],[27.995,28.99499,280],
-[28.995,29.99499,290],[29.995,30.99499,300],[30.995,31.99499,310],[31.995,32.99499,320],
-[32.995,33.99499,330],[33.995,34.99499,340],[34.995,35.99499,350],[35.995,36.99499,360],
-[36.995,37.99499,370],[37.995,38.99499,380],[38.995,39.99499,390],[39.995,40.99499,400],
-[40.995,41.99499,410],[41.995,42.99499,420],[42.995,43.99499,430],[43.995,44.99499,440],
-[44.995,45.99499,450],[45.995,46.99499,460],[46.995,47.99499,470],[47.995,48.99499,480],
-[48.995,49.99499,490],[49.995,50.99499,500],[50.995,51.99499,510],[51.995,52.99499,520],
-[52.995,53.99499,530],[53.995,54.99499,540],[54.995,55.99499,550],[55.995,56.99499,560],
-[56.995,57.99499,570],[57.995,58.99499,580],[58.995,59.99499,590],[59.995,60.99499,600],
-[60.995,61.99499,610],[61.995,62.99499,620],[62.995,63.99499,630],[63.995,64.99499,640],
-[64.995,65.99499,650],[65.995,66.99499,660],[66.995,67.99499,670],[67.995,68.99499,680],
-[68.995,69.99499,690],[69.995,70.99499,700],[70.995,71.99499,710],[71.995,72.99499,720],
-[72.995,73.99499,730],[73.995,74.99499,740],[74.995,75.99499,750],[75.995,76.99499,760],
-[76.995,77.99499,770],[77.995,78.99499,780],[78.995,79.99499,790],[79.995,80.99499,800],
-[80.995,81.99499,810],[81.995,82.99499,820],[82.995,83.99499,830],[83.995,84.99499,840],
-[84.995,85.99499,850],[85.995,86.99499,860],[86.995,87.99499,870],[87.995,88.99499,880],
-[88.995,89.99499,890],[89.995,90.99499,900],[90.995,91.99499,910],[91.995,92.99499,920],
-[92.995,93.99499,930],[93.995,94.99499,940],[94.995,95.99499,950],[95.995,96.99499,960],
-[96.995,97.99499,970],[97.995,98.99499,980],[98.995,99.99499,990],[99.995,100.39499,1000],
-[100.395,100.79499,1013],[100.795,101.19499,1026],[101.195,101.59499,1039],[101.595,101.99499,1052],
-[101.995,102.39499,1065],[102.395,102.79499,1078],[102.795,103.19499,1091],[103.195,103.59499,1104],
-[103.595,103.99499,1117],[103.995,104.39499,1130],[104.395,104.79499,1143],[104.795,105.19499,1156],
-[105.195,105.59499,1169],[105.595,105.99499,1182],[105.995,106.39499,1195],[106.395,106.79499,1208],
-[106.795,107.19499,1221],[107.195,107.59499,1234],[107.595,107.99499,1247],[107.995,108.39499,1260],
-[108.395,108.79499,1273],[108.795,109.19499,1286],[109.195,109.59499,1299],[109.595,109.99499,1312],
-[109.995,110.39499,1325],[110.395,110.79499,1338],[110.795,111.19499,1351],[111.195,111.59499,1364],
-[111.595,111.99499,1377],[111.995,112.39499,1390],[112.395,112.79499,1403],[112.795,113.19499,1416],
-[113.195,113.59499,1429],[113.595,113.99499,1442],[113.995,114.39499,1455],[114.395,114.79499,1468],
-[114.795,114.99499,1481],[114.995,99999.99999,1500]
-];
-
-function pontosDaRegua(x){
-  for(const [low,high,pts] of REGUA){if(x>=low&&x<=high)return pts;}
-  return x>114.995?1500:0;
-}
+const BR = s=>parseFloat(String(s||'').trim().replace(/\./g,'').replace(',','.'));
+const fmt = (x,d=2)=>Number.isFinite(x)?x.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+function toggleCustom(i){document.getElementById('c'+i).classList.toggle('hide',document.getElementById('sel'+i).value!=='custom');}
+function bonus(p){if(p>=1500)return 200;if(p>=1400)return 180;if(p>=1300)return 160;if(p>=1200)return 140;if(p>=1100)return 120;if(p>=1000)return 100;return 0;}
 
 function calcular(){
   const tbody=document.getElementById("tbody");tbody.innerHTML="";
-  let sumPeso=0,sumReg=0,sumReal=0,sum1500=0;
+  let somaPeso=0,somaAtingMax=0,somaAtingReal=0;
+
   for(let i=1;i<=5;i++){
-    const n=document.getElementById("n"+i).value.trim();
-    const p=parseFloat(document.getElementById("p"+i).value.replace(",","."))||0;
-    const r=parseFloat(document.getElementById("r"+i).value.replace(",","."))||0;
-    const a=parseFloat(document.getElementById("a"+i).value.replace(",","."))||0;
-    if(!n&&!p&&!a)continue;
-    const pts=pontosDaRegua(a);
-    const real=p>0?pts/p:0;
-    const esc=real*100;
-    sumPeso+=p;sumReg+=pts;sumReal+=real;sum1500+=esc;
+    const nome=(document.getElementById("n"+i).value||"").trim()||`Mobilizador ${i}`;
+    const peso=BR(document.getElementById("w"+i).value)||0;
+    let orcado=BR(document.getElementById("o"+i).value)||0;
+    let realizado=BR(document.getElementById("r"+i).value)||0;
+    let ating=BR(document.getElementById("a"+i).value);
+    const tipo=document.getElementById("sel"+i).value;
+
+    // cálculo automático
+    if(!Number.isFinite(ating) && orcado>0 && realizado>0) ating = (realizado/orcado)*100;
+    else if(!realizado && orcado>0 && Number.isFinite(ating)) realizado = (ating/100)*orcado;
+    else if(!orcado && realizado>0 && Number.isFinite(ating)) orcado = realizado/(ating/100);
+
+    // definir régua máxima
+    let atingMax=(tipo==="custom")?115:parseFloat(tipo);
+    if(tipo==="custom"){
+      const txt=document.getElementById("c"+i).value;
+      const linhas=txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+      for(let j=1;j<linhas.length;j+=3){let val=BR(linhas[j]);if(val>atingMax)atingMax=val;}
+    }
+
+    somaPeso+=peso;
+    somaAtingMax+=atingMax*peso;
+    somaAtingReal+=ating*peso;
+
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${n}</td><td>${p.toFixed(2)}</td><td>${r||1500}</td><td>${a.toFixed(2)}</td><td>${pts}</td><td>${real.toFixed(2)}</td><td>${esc.toFixed(2)}</td>`;
+    tr.innerHTML=`
+      <td>${nome}</td>
+      <td>${tipo==="custom"?"Custom":atingMax.toFixed(1)+"%"}</td>
+      <td>${fmt(peso,2)}%</td>
+      <td>${orcado?fmt(orcado,2):"—"}</td>
+      <td>${realizado?fmt(realizado,2):"—"}</td>
+      <td>${fmt(ating,2)}%</td>
+      <td>${fmt(atingMax*peso,2)}</td>
+      <td>${fmt(ating*peso,2)}</td>`;
     tbody.appendChild(tr);
   }
-  document.getElementById("tPeso").innerText=sumPeso.toFixed(2);
-  document.getElementById("tReg").innerText=sumReg.toFixed(0);
-  document.getElementById("tReal").innerText=sumReal.toFixed(2);
-  document.getElementById("t1500").innerText=sum1500.toFixed(2);
-  const extras=document.getElementById("extras");
-  const bonus=calcBonus(sum1500);
-  extras.innerHTML=`Performance total: <b>${sum1500.toFixed(2)} pts</b> → Pontos Extras: <b>${bonus} pts</b> → <b>Total Geral: ${(sum1500+bonus).toFixed(2)} pts</b>`;
+
+  document.getElementById("tPeso").textContent=fmt(somaPeso,2)+"%";
+  document.getElementById("tMax").textContent=fmt(somaAtingMax,2);
+  document.getElementById("tReal").textContent=fmt(somaAtingReal,2);
+  document.getElementById("pesoInfo").textContent=`Soma pesos: ${fmt(somaPeso,2)}%`;
+
+  const pts = somaAtingMax>0 ? (somaAtingReal/somaAtingMax)*1500 : 0;
+  const extras=bonus(pts);
+  document.getElementById("resumo").textContent=`Pontos: ${fmt(pts,2)} | Pontos Extras: ${extras}`;
 }
 
-function calcBonus(x){
-  if(x>=1500)return 200;
-  if(x>=1400)return 180;
-  if(x>=1300)return 160;
-  if(x>=1200)return 140;
-  if(x>=1100)return 120;
-  if(x>=1000)return 100;
-  return 0;
-}
 function limpar(){
-  for(let i=1;i<=5;i++){["n","p","r","a"].forEach(id=>document.getElementById(id+i).value="");}
-  document.getElementById("tbody").innerHTML='<tr><td colspan="7" style="text-align:center;color:#94a3b8">Insira dados e clique em Calcular</td></tr>';
-  document.getElementById("tPeso").textContent="";document.getElementById("tReg").textContent="";document.getElementById("tReal").textContent="";document.getElementById("t1500").textContent="";document.getElementById("extras").textContent="";
+  for(let i=1;i<=5;i++){
+    ['n','w','o','r','a','c'].forEach(id=>document.getElementById(id+i).value="");
+    document.getElementById("sel"+i).value="115";toggleCustom(i);
+  }
+  document.getElementById("tbody").innerHTML='<tr><td colspan="8" class="muted" style="text-align:center">Preencha e clique em Calcular</td></tr>';
+  document.getElementById("tPeso").textContent="";
+  document.getElementById("tMax").textContent="";
+  document.getElementById("tReal").textContent="";
+  document.getElementById("pesoInfo").textContent="Soma pesos: 0%";
+  document.getElementById("resumo").textContent="Pontos: 0 | Pontos Extras: 0";
 }
 </script>
 </body>
